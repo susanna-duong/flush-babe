@@ -311,6 +311,40 @@
 
   footer { margin: 20px 24px 32px; text-align: center; font-size: 0.62rem; letter-spacing: 2px; color: rgba(255,121,198,0.22); text-transform: uppercase; }
   footer span { color: var(--hot-pink); opacity: 0.7; }
+
+  #autocomplete-dropdown {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0; right: 0;
+    background: #1a0a1e;
+    border: 1px solid rgba(255,45,139,0.3);
+    border-radius: 14px;
+    overflow: hidden;
+    z-index: 100;
+    box-shadow: 0 8px 32px rgba(232,71,167,0.25);
+    display: none;
+  }
+  .autocomplete-item {
+    padding: 11px 16px;
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+    color: rgba(255,214,236,0.85);
+    cursor: pointer;
+    border-bottom: 1px solid rgba(255,45,139,0.08);
+    transition: background 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .autocomplete-item:last-child { border-bottom: none; }
+  .autocomplete-item:hover, .autocomplete-item.active {
+    background: rgba(255,45,139,0.12);
+    color: var(--bubblegum);
+  }
+  .autocomplete-item .ac-icon { font-size: 0.9rem; opacity: 0.7; flex-shrink: 0; }
+  .autocomplete-item .ac-main { font-weight: 600; }
+  .autocomplete-item .ac-sub { font-size: 0.65rem; color: rgba(255,121,198,0.45); letter-spacing: 1px; margin-top: 1px; }
+  .autocomplete-loading { padding: 12px 16px; font-size: 0.7rem; color: rgba(255,121,198,0.4); letter-spacing: 2px; text-align: center; }
 </style>
 </head>
 <body>
@@ -330,9 +364,10 @@
       💗 Find My Nearest Throne 💗
     </button>
     <div class="divider">or enter your location</div>
-    <div class="address-row">
-      <input id="address-input" type="text" placeholder="zip code or address (e.g. 10001)" onkeydown="if(event.key==='Enter') searchByAddress()" autocomplete="off" />
+    <div class="address-row" style="position:relative">
+      <input id="address-input" type="text" placeholder="address, neighborhood, or zip" onkeydown="handleAddressKey(event)" oninput="onAddressInput()" autocomplete="off" />
       <button id="address-btn" onclick="searchByAddress()">Go 💗</button>
+      <div id="autocomplete-dropdown"></div>
     </div>
   </div>
 
@@ -619,6 +654,114 @@ async function geocode(raw) {
     };
   }
 }
+
+// ─── AUTOCOMPLETE ────────────────────────────────────────────────────
+let acDebounce = null;
+let acResults = [];
+let acIndex = -1;
+
+function onAddressInput() {
+  const val = document.getElementById('address-input').value.trim();
+  clearTimeout(acDebounce);
+  if (val.length < 3) { hideDropdown(); return; }
+  showDropdownLoading();
+  acDebounce = setTimeout(() => fetchSuggestions(val), 320);
+}
+
+async function fetchSuggestions(query) {
+  const q = /new york|nyc|brooklyn|manhattan|queens|bronx|staten island/i.test(query)
+    ? query : `${query}, New York City`;
+  try {
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/search?` +
+      new URLSearchParams({ q, format:'json', limit:'5', countrycodes:'us',
+        viewbox:'-74.259,40.477,-73.700,40.917', bounded:'1' }),
+      { headers: { 'User-Agent': 'FlushBabeNYC/1.0' } }
+    );
+    const data = await res.json();
+    acResults = data.map(r => ({
+      label: r.display_name.split(',').slice(0,3).join(',').trim(),
+      short: r.display_name.split(',')[0].trim(),
+      lat: parseFloat(r.lat),
+      lng: parseFloat(r.lon),
+      type: r.type
+    }));
+    renderDropdown();
+  } catch(e) { hideDropdown(); }
+}
+
+function renderDropdown() {
+  const dd = document.getElementById('autocomplete-dropdown');
+  if (!acResults.length) { hideDropdown(); return; }
+  dd.innerHTML = acResults.map((r, i) => `
+    <div class="autocomplete-item" data-i="${i}" onmousedown="pickSuggestion(${i})">
+      <span class="ac-icon">📍</span>
+      <div>
+        <div class="ac-main">${r.short}</div>
+        <div class="ac-sub">${r.label}</div>
+      </div>
+    </div>`).join('');
+  dd.style.display = 'block';
+  acIndex = -1;
+}
+
+function showDropdownLoading() {
+  const dd = document.getElementById('autocomplete-dropdown');
+  dd.innerHTML = '<div class="autocomplete-loading">✨ searching...</div>';
+  dd.style.display = 'block';
+}
+
+function hideDropdown() {
+  const dd = document.getElementById('autocomplete-dropdown');
+  dd.style.display = 'none';
+  acResults = [];
+  acIndex = -1;
+}
+
+function pickSuggestion(i) {
+  const r = acResults[i];
+  if (!r) return;
+  document.getElementById('address-input').value = r.label;
+  hideDropdown();
+  userLat = r.lat; userLng = r.lng;
+  document.getElementById('status-dot').classList.add('active');
+  document.getElementById('status-text').textContent = `results near ${r.short} 💕`;
+  document.getElementById('data-badge-wrap').innerHTML = `
+    <div class="data-badge">
+      <span class="data-count">${allToilets.length || '975'} restrooms</span>
+      <span>verified NYC locations 💅</span>
+    </div>`;
+  allToilets = loadToilets(r.lat, r.lng);
+  renderResults();
+}
+
+function handleAddressKey(e) {
+  const dd = document.getElementById('autocomplete-dropdown');
+  const items = dd.querySelectorAll('.autocomplete-item');
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    acIndex = Math.min(acIndex + 1, items.length - 1);
+    items.forEach((el, i) => el.classList.toggle('active', i === acIndex));
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    acIndex = Math.max(acIndex - 1, -1);
+    items.forEach((el, i) => el.classList.toggle('active', i === acIndex));
+  } else if (e.key === 'Enter') {
+    if (acIndex >= 0 && acResults[acIndex]) {
+      pickSuggestion(acIndex);
+    } else {
+      hideDropdown();
+      searchByAddress();
+    }
+  } else if (e.key === 'Escape') {
+    hideDropdown();
+  }
+}
+
+// Close dropdown when clicking outside
+document.addEventListener('click', e => {
+  if (!e.target.closest('.address-row')) hideDropdown();
+});
 
 async function searchByAddress() {
   const input = document.getElementById('address-input');
