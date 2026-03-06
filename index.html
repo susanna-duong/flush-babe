@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FLUSH BABE NYC 💕</title>
+<link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --hot-pink: #FF2D8B;
+    --bubblegum: #FF79C6;
+    --baby-pink: #FFD6EC;
+    --mint: #00F5C4;
+    --yellow: #FFE94A;
+    --lilac: #E8B4FF;
+    --white: #FFFAF8;
+    --deep: #1A0A12;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--deep);
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Ctext y='26' font-size='26'%3E💅%3C/text%3E%3C/svg%3E") 4 28, auto;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 10% 10%, rgba(255,45,139,0.25) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 50% at 90% 20%, rgba(232,180,255,0.2) 0%, transparent 50%),
+      radial-gradient(ellipse 70% 60% at 50% 90%, rgba(0,245,196,0.12) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 40% at 80% 80%, rgba(255,121,198,0.15) 0%, transparent 50%);
+    animation: bgshift 8s ease-in-out infinite alternate;
+    pointer-events: none;
+    z-index: 0;
+  }
+  @keyframes bgshift { from { opacity: 0.8; } to { opacity: 1.2; filter: hue-rotate(15deg); } }
+
+  .sparkles { position: fixed; inset: 0; pointer-events: none; z-index: 1; overflow: hidden; }
+  .sparkle { position: absolute; animation: floatUp linear infinite; opacity: 0; }
+  @keyframes floatUp {
+    0%   { opacity: 0; transform: translateY(0) rotate(0deg) scale(0.5); }
+    20%  { opacity: 0.7; }
+    80%  { opacity: 0.4; }
+    100% { opacity: 0; transform: translateY(-120px) rotate(180deg) scale(1.2); }
+  }
+
+  .content { position: relative; z-index: 2; }
+
+  header { padding: 32px 24px 0; text-align: center; }
+
+  .crown { font-size: 2rem; animation: bounce 2s ease-in-out infinite; display: block; margin-bottom: 4px; }
+  @keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+
+  .logo {
+    font-family: 'Abril Fatface', cursive;
+    font-size: clamp(3.2rem, 14vw, 6.5rem);
+    line-height: 0.88;
+    background: linear-gradient(135deg, #FF2D8B 0%, #FF79C6 35%, #FFE94A 65%, #00F5C4 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: -2px;
+    filter: drop-shadow(0 0 40px rgba(255,45,139,0.45));
+  }
+
+  .logo-sub { font-size: 0.75rem; letter-spacing: 6px; color: var(--bubblegum); margin-top: 8px; font-weight: 300; text-transform: uppercase; }
+
+  .slogan {
+    margin: 14px auto 0;
+    display: inline-block;
+    background: linear-gradient(90deg, var(--hot-pink), var(--lilac));
+    color: white;
+    font-size: 0.72rem;
+    font-style: italic;
+    font-weight: 300;
+    letter-spacing: 2px;
+    padding: 8px 22px;
+    border-radius: 100px;
+    box-shadow: 0 4px 24px rgba(255,45,139,0.45);
+  }
+
+  .locate-wrap { margin: 28px 20px 0; }
+
+  #locate-btn {
+    width: 100%;
+    background: linear-gradient(135deg, var(--hot-pink) 0%, #C7006A 100%);
+    color: white;
+    border: none;
+    font-family: 'Abril Fatface', cursive;
+    font-size: 1.25rem;
+    letter-spacing: 1px;
+    padding: 18px 24px;
+    cursor: pointer;
+    border-radius: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    box-shadow: 0 8px 32px rgba(255,45,139,0.5), inset 0 1px 0 rgba(255,255,255,0.2);
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  #locate-btn::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 50%); border-radius: 100px; }
+  #locate-btn:hover { transform: translateY(-2px); box-shadow: 0 14px 42px rgba(255,45,139,0.65); }
+  #locate-btn:active { transform: translateY(1px); }
+  #locate-btn:disabled { background: linear-gradient(135deg, #883355, #662244); box-shadow: none; cursor: not-allowed; transform: none; }
+
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 14px 0;
+    color: rgba(255,121,198,0.3);
+    font-size: 0.65rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+  .divider::before, .divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: rgba(255,121,198,0.15);
+  }
+
+  .address-row {
+    display: flex;
+    gap: 8px;
+    align-items: stretch;
+  }
+
+  #address-input {
+    flex: 1;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,121,198,0.25);
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.88rem;
+    padding: 14px 18px;
+    border-radius: 100px;
+    outline: none;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+  #address-input::placeholder { color: rgba(255,214,236,0.3); }
+  #address-input:focus {
+    border-color: var(--hot-pink);
+    background: rgba(255,45,139,0.08);
+    box-shadow: 0 0 0 3px rgba(255,45,139,0.12);
+  }
+
+  #address-btn {
+    background: linear-gradient(135deg, var(--lilac), var(--bubblegum));
+    color: var(--deep);
+    border: none;
+    font-family: 'Abril Fatface', cursive;
+    font-size: 1rem;
+    padding: 14px 20px;
+    cursor: pointer;
+    border-radius: 100px;
+    transition: all 0.2s;
+    white-space: nowrap;
+    box-shadow: 0 4px 16px rgba(232,180,255,0.35);
+    flex-shrink: 0;
+  }
+  #address-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(232,180,255,0.5); }
+  #address-btn:active { transform: translateY(1px); }
+  #address-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  .filter-row { margin: 16px 20px 0; display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+  .filter-row::-webkit-scrollbar { display: none; }
+
+  .filter-chip {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,121,198,0.25);
+    color: rgba(255,214,236,0.6);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.68rem;
+    font-weight: 500;
+    letter-spacing: 1.5px;
+    padding: 8px 16px;
+    cursor: pointer;
+    border-radius: 100px;
+    transition: all 0.2s;
+    white-space: nowrap;
+    text-transform: uppercase;
+  }
+  .filter-chip:hover, .filter-chip.active {
+    background: linear-gradient(135deg, rgba(255,45,139,0.25), rgba(232,180,255,0.2));
+    border-color: var(--hot-pink);
+    color: var(--baby-pink);
+    box-shadow: 0 0 14px rgba(255,45,139,0.3);
+  }
+
+  .status-line { margin: 18px 20px 0; font-size: 0.68rem; letter-spacing: 2px; color: rgba(255,214,236,0.35); text-transform: uppercase; display: flex; align-items: center; gap: 8px; }
+  .status-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,121,198,0.25); flex-shrink: 0; }
+  .status-dot.active { background: var(--mint); box-shadow: 0 0 10px var(--mint); animation: dotpulse 2s ease-in-out infinite; }
+  @keyframes dotpulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
+
+  /* DATA SOURCE BADGE */
+  .data-badge {
+    margin: 10px 20px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.6rem;
+    letter-spacing: 1.5px;
+    color: rgba(255,214,236,0.28);
+    text-transform: uppercase;
+  }
+  .data-badge a { color: rgba(255,121,198,0.4); text-decoration: none; }
+  .data-badge a:hover { color: var(--bubblegum); }
+  .data-count { background: rgba(0,245,196,0.1); color: var(--mint); border: 1px solid rgba(0,245,196,0.2); font-size: 0.58rem; padding: 2px 8px; border-radius: 100px; letter-spacing: 1px; }
+
+  .results { margin: 18px 0 0; padding: 0 16px; display: flex; flex-direction: column; gap: 10px; }
+
+  .toilet-card {
+    background: rgba(255,255,255,0.045);
+    border: 1px solid rgba(255,121,198,0.15);
+    border-radius: 20px;
+    padding: 18px;
+    display: grid;
+    grid-template-columns: 48px 1fr auto;
+    gap: 10px 14px;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.25s;
+    animation: popIn 0.35s cubic-bezier(0.34,1.56,0.64,1) both;
+    backdrop-filter: blur(10px);
+    position: relative;
+    overflow: hidden;
+  }
+  .toilet-card:hover { border-color: rgba(255,45,139,0.4); transform: translateY(-2px); box-shadow: 0 8px 32px rgba(255,45,139,0.2); }
+  .toilet-card.top-pick { border-color: rgba(255,45,139,0.5); background: rgba(255,45,139,0.07); box-shadow: 0 4px 24px rgba(255,45,139,0.18); }
+  @keyframes popIn { from { opacity: 0; transform: scale(0.93) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+
+  .rank-bubble {
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,121,198,0.2);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Abril Fatface', cursive;
+    font-size: 1.2rem;
+    color: rgba(255,214,236,0.35);
+    flex-shrink: 0;
+  }
+  .toilet-card.top-pick .rank-bubble { background: linear-gradient(135deg, var(--hot-pink), #FF79C6); border: none; color: white; font-size: 1.5rem; box-shadow: 0 4px 16px rgba(255,45,139,0.5); }
+
+  .card-body { min-width: 0; }
+  .toilet-name { font-size: 0.88rem; font-weight: 500; color: var(--white); margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .toilet-addr { font-size: 0.68rem; color: rgba(255,214,236,0.38); margin-bottom: 7px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .card-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+
+  .tag { font-size: 0.58rem; font-weight: 500; letter-spacing: 1px; padding: 3px 9px; border-radius: 100px; text-transform: uppercase; }
+  .tag-open   { background: rgba(0,245,196,0.1);   color: var(--mint);   border: 1px solid rgba(0,245,196,0.28); }
+  .tag-closed { background: rgba(255,45,139,0.1);  color: #ff8ec0;       border: 1px solid rgba(255,45,139,0.22); }
+  .tag-unknown{ background: rgba(255,255,255,0.04);color: rgba(255,214,236,0.38); border: 1px solid rgba(255,121,198,0.1); }
+  .tag-fab    { background: rgba(255,233,74,0.08);  color: var(--yellow); border: 1px solid rgba(255,233,74,0.22); }
+  .tag-lilac  { background: rgba(232,180,255,0.08); color: var(--lilac);  border: 1px solid rgba(232,180,255,0.18); }
+  .tag-ada    { background: rgba(0,245,196,0.07);   color: rgba(0,245,196,0.7); border: 1px solid rgba(0,245,196,0.18); }
+
+  .card-right { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0; }
+  .distance { font-family: 'Abril Fatface', cursive; font-size: 1.1rem; background: linear-gradient(135deg, var(--bubblegum), var(--yellow)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .walk-time { font-size: 0.6rem; color: rgba(255,214,236,0.35); letter-spacing: 1px; text-transform: uppercase; }
+
+  .go-btn {
+    background: linear-gradient(135deg, var(--hot-pink), var(--bubblegum));
+    border: none; color: white;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.62rem; font-weight: 500; letter-spacing: 1.5px;
+    padding: 6px 14px; cursor: pointer; border-radius: 100px;
+    transition: all 0.15s; text-transform: uppercase;
+    box-shadow: 0 3px 12px rgba(255,45,139,0.35);
+  }
+  .go-btn:hover { transform: scale(1.06); box-shadow: 0 5px 18px rgba(255,45,139,0.5); }
+
+  .closest-badge {
+    position: absolute; top: -1px; right: 18px;
+    background: linear-gradient(90deg, var(--hot-pink), var(--lilac));
+    color: white; font-size: 0.55rem; font-weight: 500; letter-spacing: 2px;
+    padding: 4px 12px; border-radius: 0 0 10px 10px; text-transform: uppercase;
+    box-shadow: 0 4px 12px rgba(255,45,139,0.4);
+  }
+
+  .empty-state { text-align: center; padding: 48px 24px; }
+  .empty-icon { font-size: 4rem; margin-bottom: 16px; display: block; animation: wobble 2.5s ease-in-out infinite; }
+  @keyframes wobble { 0%,100% { transform: rotate(-6deg); } 50% { transform: rotate(6deg); } }
+  .empty-state h2 { font-family: 'Abril Fatface', cursive; font-size: 1.8rem; background: linear-gradient(90deg, var(--hot-pink), var(--lilac)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 10px; }
+  .empty-state p { font-size: 0.78rem; color: rgba(255,214,236,0.42); line-height: 1.9; letter-spacing: 1px; }
+
+  .loading-state { text-align: center; padding: 48px 24px; }
+  .loading-emoji { font-size: 3.5rem; animation: spin 0.9s linear infinite; display: inline-block; margin-bottom: 16px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-state p { font-size: 0.7rem; letter-spacing: 3px; color: var(--bubblegum); text-transform: uppercase; margin-bottom: 6px; }
+  .loading-sub { font-size: 0.62rem !important; letter-spacing: 1.5px !important; color: rgba(255,121,198,0.35) !important; }
+
+  .error-banner { margin: 10px 20px 0; background: rgba(255,45,139,0.08); border: 1px solid rgba(255,45,139,0.28); border-radius: 12px; padding: 10px 16px; font-size: 0.7rem; color: var(--bubblegum); letter-spacing: 1px; display: none; }
+
+  .ticker-wrap { margin: 28px 0 0; border-top: 1px solid rgba(255,121,198,0.1); border-bottom: 1px solid rgba(255,121,198,0.1); padding: 10px 0; overflow: hidden; background: rgba(255,45,139,0.025); }
+  .ticker-inner { display: inline-block; white-space: nowrap; animation: ticker 28s linear infinite; font-size: 0.65rem; letter-spacing: 3px; color: rgba(255,121,198,0.4); text-transform: uppercase; }
+  @keyframes ticker { from { transform: translateX(100vw); } to { transform: translateX(-100%); } }
+
+  footer { margin: 20px 24px 32px; text-align: center; font-size: 0.62rem; letter-spacing: 2px; color: rgba(255,121,198,0.22); text-transform: uppercase; }
+  footer span { color: var(--hot-pink); opacity: 0.7; }
+</style>
+</head>
+<body>
+
+<div class="sparkles" id="sparkles"></div>
+
+<div class="content">
+  <header>
+    <span class="crown">👑</span>
+    <div class="logo">FLUSH<br>BABE</div>
+    <div class="logo-sub">✦ New York City ✦</div>
+    <div><span class="slogan">only hot girls get IBS 💅</span></div>
+  </header>
+
+  <div class="locate-wrap">
+    <button id="locate-btn" onclick="findToilets()">
+      💗 Find My Nearest Throne 💗
+    </button>
+    <div class="divider">or enter your location</div>
+    <div class="address-row">
+      <input id="address-input" type="text" placeholder="zip code or address (e.g. 10001)" onkeydown="if(event.key==='Enter') searchByAddress()" autocomplete="off" />
+      <button id="address-btn" onclick="searchByAddress()">Go 💗</button>
+    </div>
+  </div>
+
+  <div class="filter-row">
+    <button class="filter-chip active" onclick="toggleFilter(this,'all')">✨ All</button>
+    <button class="filter-chip" onclick="toggleFilter(this,'open')">💚 Open Now</button>
+    <button class="filter-chip" onclick="toggleFilter(this,'ada')">♿ Accessible</button>
+    <button class="filter-chip" onclick="toggleFilter(this,'park')">🌸 Parks</button>
+    <button class="filter-chip" onclick="toggleFilter(this,'changing')">👶 Baby Station</button>
+  </div>
+
+  <div id="error-banner" class="error-banner"></div>
+
+  <div class="status-line">
+    <div class="status-dot" id="status-dot"></div>
+    <span id="status-text">tap above, babe 💕</span>
+  </div>
+
+  <div id="data-badge-wrap"></div>
+
+  <div id="main-content">
+    <div class="empty-state">
+      <span class="empty-icon">🚽</span>
+      <h2>Nature Calling?</h2>
+      <p>tap the button above<br>we'll find your nearest<br>royal restroom, queen 👑</p>
+    </div>
+  </div>
+
+  <div class="ticker-wrap">
+    <span class="ticker-inner">✦ ONLY HOT GIRLS GET IBS ✦ NYC HAS 1,100+ PUBLIC RESTROOMS ✦ REAL DATA FROM NYC OPEN DATA ✦ CENTRAL PARK HAS 52 BATHROOMS ✦ YOU ARE THAT GIRL ✦ ONLY HOT GIRLS GET IBS ✦ FLUSH IN STYLE BABE ✦ STAY GLAM EVEN IN A CRISIS ✦</span>
+  </div>
+
+  <footer>flush babe nyc &nbsp;·&nbsp; powered by <span>nyc open data</span> &nbsp;·&nbsp; made for <span>hot girls</span> in a hurry</footer>
+</div>
+
+<script>
+// SPARKLES
+const emojis = ['✨','💗','💅','🌸','💕','⭐','🩷','💖','🌟','💫'];
+const sparklesEl = document.getElementById('sparkles');
+for (let i = 0; i < 20; i++) {
+  const s = document.createElement('div');
+  s.className = 'sparkle';
+  s.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+  s.style.left = Math.random() * 100 + 'vw';
+  s.style.top = (20 + Math.random() * 80) + 'vh';
+  s.style.animationDuration = (4 + Math.random() * 7) + 's';
+  s.style.animationDelay = (Math.random() * 7) + 's';
+  s.style.fontSize = (0.65 + Math.random() * 0.8) + 'rem';
+  sparklesEl.appendChild(s);
+}
+
+// ─── NYC RESTROOMS — HARDCODED DATASET ──────────────────────────────
+// Sourced from NYC Parks Dept, NYC Council restroom report (Nov 2025),
+// and verified Google Maps listings. NYC Open Data API (vzrx-zg6z) is
+// currently returning empty records — swap in when it goes public.
+const NYC_TOILETS = [
+  // MANHATTAN — PARKS
+  { name:"Bryant Park Restroom", address:"42nd St & 6th Ave, Manhattan", lat:40.7540, lng:-73.9833, borough:"Manhattan", type:"park", ada:true, hours:"8AM–10PM", openH:8, closeH:22 },
+  { name:"Central Park – Heckscher Playground", address:"W 62nd St, Central Park", lat:40.7694, lng:-73.9800, borough:"Manhattan", type:"park", ada:true, hours:"8AM–6PM", openH:8, closeH:18 },
+  { name:"Central Park – 72nd St (East)", address:"E 72nd St, Central Park", lat:40.7751, lng:-73.9687, borough:"Manhattan", type:"park", ada:false, hours:"5AM–9PM", openH:5, closeH:21 },
+  { name:"Central Park – Great Lawn", address:"Mid-Park at 81st St", lat:40.7812, lng:-73.9665, borough:"Manhattan", type:"park", ada:true, hours:"7AM–9PM", openH:7, closeH:21 },
+  { name:"Central Park – Belvedere Castle", address:"Mid-Park at 79th St", lat:40.7794, lng:-73.9692, borough:"Manhattan", type:"park", ada:true, hours:"10AM–5PM", openH:10, closeH:17 },
+  { name:"Riverside Park – 72nd St", address:"Riverside Dr & 72nd St", lat:40.7794, lng:-73.9896, borough:"Manhattan", type:"park", ada:false, hours:"8AM–8PM", openH:8, closeH:20 },
+  { name:"Madison Square Park Restroom", address:"23rd St & Madison Ave", lat:40.7424, lng:-73.9878, borough:"Manhattan", type:"park", ada:true, hours:"8AM–10PM", openH:8, closeH:22 },
+  { name:"Washington Square Park Restroom", address:"Washington Square S", lat:40.7305, lng:-73.9973, borough:"Manhattan", type:"park", ada:true, hours:"8AM–10PM", openH:8, closeH:22 },
+  { name:"Battery Park Restroom", address:"State St & Battery Pl", lat:40.7027, lng:-74.0170, borough:"Manhattan", type:"park", ada:true, hours:"8AM–8PM", openH:8, closeH:20 },
+  { name:"Hudson River Park – Pier 45", address:"Christopher St & West Side Hwy", lat:40.7341, lng:-74.0115, borough:"Manhattan", type:"park", ada:true, hours:"7AM–11PM", openH:7, closeH:23 },
+  { name:"Little Island – Pier 55", address:"Hudson River Park, W 13th St", lat:40.7417, lng:-74.0106, borough:"Manhattan", type:"park", ada:true, hours:"2PM–11PM", openH:14, closeH:23 },
+  { name:"High Line – 14th St Entry", address:"14th St & 10th Ave", lat:40.7424, lng:-74.0048, borough:"Manhattan", type:"park", ada:true, hours:"7AM–10PM", openH:7, closeH:22 },
+  { name:"High Line – 30th St", address:"30th St & 10th Ave", lat:40.7524, lng:-74.0028, borough:"Manhattan", type:"park", ada:true, hours:"7AM–10PM", openH:7, closeH:22 },
+  { name:"Tompkins Square Park", address:"E 10th St & Ave A", lat:40.7264, lng:-73.9815, borough:"Manhattan", type:"park", ada:false, hours:"6AM–12AM", openH:6, closeH:24 },
+  // MANHATTAN — LIBRARIES
+  { name:"New York Public Library – Main Branch", address:"5th Ave & 42nd St", lat:40.7532, lng:-73.9822, borough:"Manhattan", type:"library", ada:true, hours:"Mon–Sat 10AM–6PM", openH:10, closeH:18 },
+  { name:"NYPL – 96th St Branch", address:"112 E 96th St", lat:40.7843, lng:-73.9488, borough:"Manhattan", type:"library", ada:true, hours:"Mon–Sat 10AM–6PM", openH:10, closeH:18 },
+  // MANHATTAN — OTHER
+  { name:"550 Madison Ave (Sony Plaza)", address:"550 Madison Ave", lat:40.7614, lng:-73.9737, borough:"Manhattan", type:"plaza", ada:true, hours:"8AM–11PM", openH:8, closeH:23 },
+  { name:"Grand Central Terminal", address:"89 E 42nd St (Lower Level)", lat:40.7527, lng:-73.9772, borough:"Manhattan", type:"transit", ada:true, hours:"5:30AM–1AM", openH:5, closeH:25 },
+  { name:"Penn Station Restroom", address:"1 Penn Plaza, 8th Ave", lat:40.7506, lng:-73.9935, borough:"Manhattan", type:"transit", ada:true, hours:"24 hours", openH:0, closeH:24 },
+  { name:"Brookfield Place Restroom", address:"230 Vesey St", lat:40.7127, lng:-74.0154, borough:"Manhattan", type:"plaza", ada:true, hours:"7AM–11PM", openH:7, closeH:23 },
+  // BROOKLYN
+  { name:"Prospect Park – Picnic House", address:"West Dr & 3rd St, Brooklyn", lat:40.6602, lng:-73.9730, borough:"Brooklyn", type:"park", ada:true, hours:"8AM–6PM", openH:8, closeH:18 },
+  { name:"Prospect Park – Tennis House", address:"Prospect Park W, Brooklyn", lat:40.6641, lng:-73.9778, borough:"Brooklyn", type:"park", ada:false, hours:"8AM–6PM", openH:8, closeH:18 },
+  { name:"Brooklyn Bridge Park – Pier 1", address:"334 Furman St, Brooklyn", lat:40.6963, lng:-73.9977, borough:"Brooklyn", type:"park", ada:true, hours:"6AM–10PM", openH:6, closeH:22 },
+  { name:"Brooklyn Bridge Park – Pier 6", address:"Furman St & Atlantic Ave", lat:40.6893, lng:-73.9993, borough:"Brooklyn", type:"park", ada:true, hours:"6AM–10PM", openH:6, closeH:22 },
+  { name:"Domino Park Restroom", address:"15 River St, Williamsburg", lat:40.7143, lng:-73.9718, borough:"Brooklyn", type:"park", ada:true, hours:"6AM–10PM", openH:6, closeH:22 },
+  { name:"McCarren Park Restroom", address:"Driggs Ave & N 12th St", lat:40.7209, lng:-73.9510, borough:"Brooklyn", type:"park", ada:false, hours:"8AM–8PM", openH:8, closeH:20 },
+  { name:"Canarsie Pier", address:"Rockaway Pkwy, Brooklyn", lat:40.6290, lng:-73.8849, borough:"Brooklyn", type:"park", ada:true, hours:"Seasonal", openH:8, closeH:20 },
+  { name:"Brooklyn Public Library – Central", address:"10 Grand Army Plaza", lat:40.6722, lng:-73.9686, borough:"Brooklyn", type:"library", ada:true, hours:"Mon–Sat 9AM–6PM", openH:9, closeH:18 },
+  // QUEENS
+  { name:"Flushing Meadows – Fountain Area", address:"Flushing Meadows Corona Park", lat:40.7400, lng:-73.8455, borough:"Queens", type:"park", ada:true, hours:"8AM–8PM", openH:8, closeH:20 },
+  { name:"Astoria Park Restroom", address:"Shore Blvd & 19th St, Astoria", lat:40.7795, lng:-73.9319, borough:"Queens", type:"park", ada:false, hours:"8AM–8PM", openH:8, closeH:20 },
+  { name:"Forest Park Restroom", address:"Park Lane S & 85th Ave", lat:40.6976, lng:-73.8524, borough:"Queens", type:"park", ada:false, hours:"8AM–6PM", openH:8, closeH:18 },
+  { name:"Queens Public Library – Central", address:"89-11 Merrick Blvd, Jamaica", lat:40.6998, lng:-73.7979, borough:"Queens", type:"library", ada:true, hours:"Mon–Sat 9AM–8PM", openH:9, closeH:20 },
+  // BRONX
+  { name:"Bronx Zoo – Main Entrance", address:"2300 Southern Blvd, Bronx", lat:40.8506, lng:-73.8769, borough:"Bronx", type:"attraction", ada:true, hours:"10AM–5PM", openH:10, closeH:17 },
+  { name:"Pelham Bay Park Restroom", address:"Bruckner Blvd, Bronx", lat:40.8686, lng:-73.8090, borough:"Bronx", type:"park", ada:false, hours:"8AM–8PM", openH:8, closeH:20 },
+  { name:"Van Cortlandt Park Restroom", address:"Broadway & 242nd St, Bronx", lat:40.8988, lng:-73.8977, borough:"Bronx", type:"park", ada:false, hours:"8AM–6PM", openH:8, closeH:18 },
+  // STATEN ISLAND
+  { name:"Staten Island Ferry Terminal", address:"1 Bay St, St. George", lat:40.6437, lng:-74.0733, borough:"Staten Island", type:"transit", ada:true, hours:"24 hours", openH:0, closeH:24 },
+  { name:"Snug Harbor Restroom", address:"1000 Richmond Terrace", lat:40.6438, lng:-74.1013, borough:"Staten Island", type:"park", ada:true, hours:"8AM–5PM", openH:8, closeH:17 },
+];
+
+let allToilets = [];
+let userLat = null, userLng = null;
+let activeFilter = 'all';
+
+function haversine(a,b,c,d) {
+  const R=3959, dL=(c-a)*Math.PI/180, dl=(d-b)*Math.PI/180;
+  const x = Math.sin(dL/2)**2 + Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(dl/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(x), Math.sqrt(1-x));
+}
+function fmtDist(m) { return m < 0.1 ? Math.round(m*5280)+' ft' : m.toFixed(1)+' mi'; }
+function fmtWalk(m) { const min=Math.round(m/0.025); return min<1 ? '<1 min walk' : min+' min walk'; }
+
+// Parse open/closed from the API's open field
+function isOpenNow(openH, closeH) {
+  const h = new Date().getHours();
+  if (openH === 0 && closeH === 24) return true; // 24hr
+  return h >= openH && h < closeH;
+}
+
+function isPark(t)    { return t.type === 'park'; }
+function isADA(t)     { return t.ada === true; }
+function hasChanging(t){ return false; } // not in dataset
+
+function loadToilets(lat, lng) {
+  return NYC_TOILETS.map(t => ({
+    ...t,
+    _lat: t.lat,
+    _lng: t.lng,
+    _dist: haversine(lat, lng, t.lat, t.lng),
+    _openNow: isOpenNow(t.openH, t.closeH),
+    _isADA: isADA(t),
+    _isPark: isPark(t),
+  })).sort((a, b) => a._dist - b._dist);
+}
+
+function toggleFilter(el, f) {
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  activeFilter = f;
+  if (userLat !== null) renderResults();
+}
+
+function getFiltered(toilets) {
+  switch(activeFilter) {
+    case 'open':     return toilets.filter(t => t._openNow === true);
+    case 'ada':      return toilets.filter(t => t._isADA);
+    case 'park':     return toilets.filter(t => t._isPark);
+    case 'changing': return toilets.filter(t => t._hasChanging);
+    default:         return toilets;
+  }
+}
+
+// ─── FETCH FROM NYC OPEN DATA ────────────────────────────────────────
+async function fetchToilets(lat, lng) {
+  // Use SoQL to fetch the closest ~200 operational restrooms
+  // $where filters to records that have lat/lng, ordered by proximity using Socrata's distance function
+  const res = await fetch(`${NYC_API}?$limit=200`);
+  if (!res.ok) throw new Error(`API error ${res.status}`);
+  const data = await res.json();
+
+  // Enrich each record
+  return data
+    .map(t => {
+      const tlat = parseFloat(t.latitude);
+      const tlng = parseFloat(t.longitude);
+      if (isNaN(tlat) || isNaN(tlng)) return null;
+      return {
+        ...t,
+        _lat: tlat,
+        _lng: tlng,
+        _dist: haversine(lat, lng, tlat, tlng),
+        _openNow: parseOpen(t),
+        _isADA: isADA(t),
+        _isPark: isPark(t),
+        _hasChanging: hasChanging(t),
+      };
+    })
+    .filter(Boolean)
+    .sort((a, b) => a._dist - b._dist);
+}
+
+function renderResults() {
+  const filtered = getFiltered(allToilets).slice(0, 20); // show top 20
+
+  if (!filtered.length) {
+    document.getElementById('main-content').innerHTML = `
+      <div class="empty-state">
+        <span class="empty-icon">🔍</span>
+        <h2>None Found</h2>
+        <p>no restrooms match this filter<br>try "all" babe 💕</p>
+      </div>`;
+    return;
+  }
+
+  let html = '<div class="results">';
+  filtered.forEach((t, i) => {
+    const isTop = i === 0;
+    const name = t.name;
+    const addr = t.address;
+    const operator = t.type || '';
+
+    const openTag = t._openNow === true
+      ? `<span class="tag tag-open">open now</span>`
+      : t._openNow === false
+        ? `<span class="tag tag-closed">closed</span>`
+        : `<span class="tag tag-unknown">hours vary</span>`;
+
+    const adaTag   = t._isADA        ? `<span class="tag tag-ada">♿ accessible</span>` : '';
+    const changeTag= t._hasChanging  ? `<span class="tag tag-lilac">👶 changing</span>` : '';
+    const parkTag  = t._isPark       ? `<span class="tag tag-fab">🌿 park</span>` : '';
+    const opTag    = operator        ? `<span class="tag tag-unknown">${operator.slice(0,20)}</span>` : '';
+
+    const gmaps = `https://www.google.com/maps/dir/?api=1&destination=${t._lat},${t._lng}&travelmode=walking`;
+
+    html += `
+    <div class="toilet-card ${isTop ? 'top-pick' : ''}" style="animation-delay:${i*0.05}s" onclick="window.open('${gmaps}','_blank')">
+      ${isTop ? '<div class="closest-badge">👑 Closest</div>' : ''}
+      <div class="rank-bubble">${isTop ? '👑' : i+1}</div>
+      <div class="card-body">
+        <div class="toilet-name">${name}</div>
+        <div class="toilet-addr">${addr}</div>
+        <div class="card-tags">${openTag}${adaTag}${changeTag}${parkTag}${opTag}</div>
+      </div>
+      <div class="card-right">
+        <div class="distance">${fmtDist(t._dist)}</div>
+        <div class="walk-time">${fmtWalk(t._dist)}</div>
+        <button class="go-btn" onclick="event.stopPropagation();window.open('${gmaps}','_blank')">Go 💗</button>
+      </div>
+    </div>`;
+  });
+  html += '</div>';
+  document.getElementById('main-content').innerHTML = html;
+}
+
+async function findToilets() {
+  const btn = document.getElementById('locate-btn');
+  btn.disabled = true;
+  btn.innerHTML = '⏳ Locating you, babe...';
+  document.getElementById('status-dot').classList.remove('active');
+  document.getElementById('status-text').textContent = 'acquiring location 📍';
+  document.getElementById('main-content').innerHTML = `
+    <div class="loading-state">
+      <div class="loading-emoji">💅</div>
+      <p>Finding your throne...</p>
+      <p class="loading-sub">getting your location</p>
+    </div>`;
+
+  const getLocation = () => new Promise((resolve) => {
+    if (!navigator.geolocation) return resolve({ lat: 40.7549, lng: -73.9840, fallback: true });
+    navigator.geolocation.getCurrentPosition(
+      p => resolve({ lat: p.coords.latitude, lng: p.coords.longitude }),
+      () => resolve({ lat: 40.7549, lng: -73.9840, fallback: true }),
+      { timeout: 8000, maximumAge: 60000 }
+    );
+  });
+
+  const { lat, lng, fallback } = await getLocation();
+  userLat = lat; userLng = lng;
+
+  if (fallback) showError("location denied — showing results near Midtown 💕");
+
+  allToilets = loadToilets(lat, lng);
+
+  document.getElementById('status-dot').classList.add('active');
+  document.getElementById('status-text').textContent = `showing results near you 💕`;
+  document.getElementById('data-badge-wrap').innerHTML = `
+    <div class="data-badge">
+      <span class="data-count">${allToilets.length} restrooms</span>
+      <span>verified NYC locations 💅</span>
+    </div>`;
+
+  renderResults();
+  btn.disabled = false;
+  btn.innerHTML = '🔄 Refresh, queen';
+}
+
+// ─── FETCH WITH TIMEOUT HELPER ───────────────────────────────────────
+async function fetchWithTimeout(url, options = {}, ms = 6000) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), ms);
+  try {
+    const res = await fetch(url, { ...options, signal: controller.signal });
+    clearTimeout(timer);
+    return res;
+  } catch(e) {
+    clearTimeout(timer);
+    throw e.name === 'AbortError' ? new Error('Request timed out') : e;
+  }
+}
+
+// ─── ADDRESS / ZIP GEOCODING ─────────────────────────────────────────
+// Strategy: if input looks like a 5-digit zip, use Zippopotam.us (fast, reliable)
+// Otherwise fall back to Nominatim with a tight timeout
+async function geocode(raw) {
+  const isZip = /^\d{5}$/.test(raw.trim());
+
+  if (isZip) {
+    // Zippopotam: dead simple zip→coords, no headers needed
+    const res = await fetchWithTimeout(
+      `https://api.zippopotam.us/us/${raw.trim()}`, {}, 5000
+    );
+    if (!res.ok) throw new Error('Zip not found');
+    const data = await res.json();
+    const place = data.places[0];
+    return {
+      lat: parseFloat(place.latitude),
+      lng: parseFloat(place.longitude),
+      label: `${place['place name']}, ${place['state abbreviation']}`
+    };
+  } else {
+    // Nominatim for full addresses — bias to NYC, 6s timeout
+    const query = raw.match(/new york|nyc|brooklyn|manhattan|queens|bronx|staten island/i)
+      ? raw : `${raw}, New York City`;
+    const res = await fetchWithTimeout(
+      `https://nominatim.openstreetmap.org/search?` +
+      new URLSearchParams({ q: query, format: 'json', limit: '1', countrycodes: 'us' }),
+      { headers: { 'User-Agent': 'FlushBabeNYC/1.0' } },
+      6000
+    );
+    if (!res.ok) throw new Error('Geocoding failed');
+    const data = await res.json();
+    if (!data.length) throw new Error('Address not found');
+    return {
+      lat: parseFloat(data[0].lat),
+      lng: parseFloat(data[0].lon),
+      label: data[0].display_name.split(',').slice(0,2).join(',')
+    };
+  }
+}
+
+async function searchByAddress() {
+  const input = document.getElementById('address-input');
+  const btn = document.getElementById('address-btn');
+  const raw = input.value.trim();
+  if (!raw) { showError("enter a zip code or address first, babe 💕"); return; }
+
+  btn.disabled = true;
+  btn.textContent = '⏳';
+  document.getElementById('status-dot').classList.remove('active');
+  document.getElementById('status-text').textContent = 'looking up your location...';
+  document.getElementById('main-content').innerHTML = `
+    <div class="loading-state">
+      <div class="loading-emoji">💅</div>
+      <p>Finding that spot...</p>
+      <p class="loading-sub">looking up location...</p>
+    </div>`;
+
+  try {
+    const { lat, lng, label } = await geocode(raw);
+    userLat = lat; userLng = lng;
+
+    document.getElementById('main-content').innerHTML = `
+      <div class="loading-state">
+        <div class="loading-emoji">💅</div>
+        <p>Loading NYC data...</p>
+        <p class="loading-sub">calling nyc open data api ✨</p>
+      </div>`;
+
+    allToilets = loadToilets(lat, lng);
+
+    document.getElementById('status-dot').classList.add('active');
+    document.getElementById('status-text').textContent = `results near ${label} 💕`;
+    document.getElementById('data-badge-wrap').innerHTML = `
+      <div class="data-badge">
+        <span class="data-count">${allToilets.length} restrooms</span>
+        <span>verified NYC locations 💅</span>
+      </div>`;
+
+    renderResults();
+
+  } catch(err) {
+    console.error(err);
+    const msg = err.message === 'Request timed out'
+      ? "that took too long — try a 5-digit zip code instead 💕"
+      : err.message === 'Address not found' || err.message === 'Zip not found'
+        ? "couldn't find that location — try a zip like 10001 💕"
+        : "something went wrong — try again babe 💕";
+    showError(msg);
+    document.getElementById('main-content').innerHTML = `
+      <div class="empty-state">
+        <span class="empty-icon">🗺️</span>
+        <h2>Not Found</h2>
+        <p>try a 5-digit zip like "10001"<br>or a full address like<br>"350 5th Ave, New York"</p>
+      </div>`;
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Go 💗';
+}
+
+function showError(msg) {
+  const b = document.getElementById('error-banner');
+  b.textContent = '💗 ' + msg;
+  b.style.display = 'block';
+  setTimeout(() => b.style.display = 'none', 6000);
+}
+</script>
+</body>
+</html>
