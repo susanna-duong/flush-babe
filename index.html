@@ -488,7 +488,7 @@ function renderResults() {
   filtered.forEach((t, i) => {
     const isTop = i === 0;
     const name = t.name;
-    const addr = t.address;
+    const addr = t.operator || t.type || '';
     const operator = t.type || '';
 
     const openTag = t._openNow === true
