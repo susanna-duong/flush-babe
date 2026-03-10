@@ -27,7 +27,6 @@ export default async function handler(req, res) {
               'Address': address || '',
               'Notes': notes || '',
               'Submitted At': new Date().toISOString().split('T')[0],
-              '_Status': 'Pending'
             }
           })
         }
