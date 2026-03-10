@@ -26,7 +26,7 @@ export default async function handler(req, res) {
               'Location Name': locationName,
               'Address': address || '',
               'Notes': notes || '',
-              'Submitted At': new Date().toISOString(),
+              'Submitted At': new Date().toISOString().split('T')[0],
               '_Status': 'Pending'
             }
           })
