@@ -433,8 +433,9 @@
 
 <!-- SUBMIT MODAL -->
 <div id="submit-overlay" onclick="closeSubmitModal()" style="display:none;position:fixed;inset:0;background:rgba(10,0,15,0.85);z-index:200;backdrop-filter:blur(6px);"></div>
-<div id="submit-modal" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:201;background:linear-gradient(180deg,#1a0a2e,#0d0015);border-radius:24px 24px 0 0;padding:28px 24px 40px;border-top:1px solid rgba(255,45,139,0.25);max-height:90vh;overflow-y:auto;">
-  <div style="width:36px;height:4px;background:rgba(255,121,198,0.3);border-radius:2px;margin:0 auto 24px;"></div>
+<div id="submit-modal" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:201;background:linear-gradient(180deg,#1a0a2e,#0d0015);border-radius:24px 24px 0 0;padding:28px 24px 40px;border-top:1px solid rgba(255,45,139,0.25);max-height:90vh;overflow-y:auto;transition:transform 0.3s ease;">
+  <div id="modal-drag-handle" style="width:36px;height:4px;background:rgba(255,121,198,0.3);border-radius:2px;margin:0 auto 24px;cursor:grab;"></div>
+  <button onclick="closeSubmitModal()" style="position:absolute;top:20px;right:20px;background:rgba(255,45,139,0.1);border:1px solid rgba(255,45,139,0.25);border-radius:50%;width:32px;height:32px;color:rgba(255,121,198,0.7);font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">✕</button>
   <div style="font-family:'Abril Fatface',cursive;font-size:1.4rem;background:linear-gradient(90deg,#FF2D8B,#E8B4FF);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:4px;">Know a Spot? 👑</div>
   <p style="font-size:0.7rem;letter-spacing:1.5px;color:rgba(255,121,198,0.45);margin-bottom:24px;text-transform:uppercase;">help the girls out</p>
 
@@ -885,6 +886,28 @@ async function searchByAddress() {
   btn.disabled = false;
   btn.textContent = 'Go 💗';
 }
+
+// ─── SWIPE TO DISMISS MODAL ──────────────────────────────────────────
+let swipeStartY = null;
+
+function initSwipeToDismiss() {
+  const modal = document.getElementById('submit-modal');
+  modal.addEventListener('touchstart', e => {
+    swipeStartY = e.touches[0].clientY;
+  }, { passive: true });
+  modal.addEventListener('touchmove', e => {
+    if (swipeStartY === null) return;
+    const dy = e.touches[0].clientY - swipeStartY;
+    if (dy > 0) modal.style.transform = `translateY(${dy}px)`;
+  }, { passive: true });
+  modal.addEventListener('touchend', e => {
+    const dy = e.changedTouches[0].clientY - swipeStartY;
+    modal.style.transform = '';
+    if (dy > 80) closeSubmitModal();
+    swipeStartY = null;
+  });
+}
+initSwipeToDismiss();
 
 // ─── SUBMIT MODAL ────────────────────────────────────────────────────
 let submitType = 'New Location';
