@@ -323,6 +323,19 @@
   .type-btn:hover { border-color:rgba(255,45,139,0.5); color:var(--bubblegum); }
   .type-btn.active { border-color:#FF2D8B; background:rgba(255,45,139,0.1); color:var(--bubblegum); }
 
+  #submit-autocomplete-dropdown {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0; right: 0;
+    background: #1a0a2e;
+    border: 1px solid rgba(255,45,139,0.3);
+    border-radius: 14px;
+    overflow: hidden;
+    z-index: 300;
+    box-shadow: 0 8px 32px rgba(232,71,167,0.25);
+    display: none;
+  }
+
   #autocomplete-dropdown {
     position: absolute;
     top: calc(100% + 4px);
@@ -440,9 +453,10 @@
     <input id="submit-name" class="modal-input" type="text" placeholder="e.g. Whole Foods 2nd Floor, Union Square" />
   </div>
 
-  <div style="margin-bottom:14px;" id="submit-address-wrap">
+  <div style="margin-bottom:14px;position:relative;" id="submit-address-wrap">
     <label class="modal-label">address</label>
-    <input id="submit-address" class="modal-input" type="text" placeholder="e.g. 511 Clinton St, Brooklyn" />
+    <input id="submit-address" class="modal-input" type="text" placeholder="e.g. 511 Clinton St, Brooklyn" oninput="onSubmitAddressInput()" onkeydown="handleSubmitAddressKey(event)" autocomplete="off" />
+    <div id="submit-autocomplete-dropdown"></div>
   </div>
 
   <div style="margin-bottom:24px;">
@@ -929,6 +943,74 @@ async function submitSpot() {
 
   btn.disabled = false;
   btn.textContent = 'Submit 💗';
+}
+
+// ─── SUBMIT FORM AUTOCOMPLETE ────────────────────────────────────────
+let submitAcDebounce = null;
+let submitAcResults = [];
+let submitAcIndex = -1;
+
+function onSubmitAddressInput() {
+  const val = document.getElementById('submit-address').value.trim();
+  clearTimeout(submitAcDebounce);
+  if (val.length < 3) { hideSubmitDropdown(); return; }
+  const dd = document.getElementById('submit-autocomplete-dropdown');
+  dd.innerHTML = '<div class="autocomplete-loading">✨ searching...</div>';
+  dd.style.display = 'block';
+  submitAcDebounce = setTimeout(async () => {
+    try {
+      const res = await fetch(`/api/autocomplete?input=${encodeURIComponent(val)}`);
+      const data = await res.json();
+      submitAcResults = (data.predictions || []).map(p => ({
+        short: p.structured_formatting.main_text,
+        label: p.description,
+        placeId: p.place_id
+      }));
+      if (!submitAcResults.length) { hideSubmitDropdown(); return; }
+      dd.innerHTML = submitAcResults.map((r, i) => `
+        <div class="autocomplete-item" data-i="${i}" onmousedown="pickSubmitSuggestion(${i})">
+          <span class="ac-icon">📍</span>
+          <div>
+            <div class="ac-main">${r.short}</div>
+            <div class="ac-sub">${r.label}</div>
+          </div>
+        </div>`).join('');
+      dd.style.display = 'block';
+      submitAcIndex = -1;
+    } catch(e) { hideSubmitDropdown(); }
+  }, 320);
+}
+
+function pickSubmitSuggestion(i) {
+  const r = submitAcResults[i];
+  if (!r) return;
+  document.getElementById('submit-address').value = r.label;
+  hideSubmitDropdown();
+}
+
+function hideSubmitDropdown() {
+  const dd = document.getElementById('submit-autocomplete-dropdown');
+  dd.style.display = 'none';
+  submitAcResults = [];
+  submitAcIndex = -1;
+}
+
+function handleSubmitAddressKey(e) {
+  const dd = document.getElementById('submit-autocomplete-dropdown');
+  const items = dd.querySelectorAll('.autocomplete-item');
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    submitAcIndex = Math.min(submitAcIndex + 1, items.length - 1);
+    items.forEach((el, i) => el.classList.toggle('active', i === submitAcIndex));
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    submitAcIndex = Math.max(submitAcIndex - 1, -1);
+    items.forEach((el, i) => el.classList.toggle('active', i === submitAcIndex));
+  } else if (e.key === 'Enter' && submitAcIndex >= 0) {
+    pickSubmitSuggestion(submitAcIndex);
+  } else if (e.key === 'Escape') {
+    hideSubmitDropdown();
+  }
 }
 
 function showError(msg) {
