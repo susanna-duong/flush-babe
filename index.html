@@ -686,22 +686,16 @@ async function geocode(raw) {
       label: `${place['place name']}, ${place['state abbreviation']}`
     };
   } else {
-    // Nominatim for full addresses — bias to NYC, 6s timeout
+    // Google geocoding for full addresses
     const query = raw.match(/new york|nyc|brooklyn|manhattan|queens|bronx|staten island/i)
       ? raw : `${raw}, New York City`;
-    const res = await fetchWithTimeout(
-      `https://nominatim.openstreetmap.org/search?` +
-      new URLSearchParams({ q: query, format: 'json', limit: '1', countrycodes: 'us' }),
-      { headers: { 'User-Agent': 'FlushBabeNYC/1.0' } },
-      6000
-    );
-    if (!res.ok) throw new Error('Geocoding failed');
+    const res = await fetch(`/api/autocomplete?` + new URLSearchParams({ input: query }));
     const data = await res.json();
-    if (!data.length) throw new Error('Address not found');
+    if (!data.predictions?.length) throw new Error('Address not found');
+    const { lat, lng } = await geocodePlaceId(data.predictions[0].place_id);
     return {
-      lat: parseFloat(data[0].lat),
-      lng: parseFloat(data[0].lon),
-      label: data[0].display_name.split(',').slice(0,2).join(',')
+      lat, lng,
+      label: data.predictions[0].description.split(',').slice(0,2).join(',')
     };
   }
 }
