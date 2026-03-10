@@ -21,11 +21,11 @@ export default async function handler(req, res) {
         key,
         components: 'country:us',
         location: '40.7128,-74.0060',
-        radius: '40000',
-        strictbounds: 'true',
+        radius: '50000',
       });
   
     const response = await fetch(url);
     const data = await response.json();
+    console.log('Google response status:', data.status, 'predictions:', data.predictions?.length);
     res.status(200).json(data);
   }
