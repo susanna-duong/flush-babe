@@ -6,6 +6,8 @@
 <title>FLUSH BABE NYC 💕</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💅</text></svg>">
 <link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
   :root {
     --hot-pink: #FF2D8B;
@@ -369,6 +371,125 @@
   .autocomplete-item .ac-main { font-weight: 600; }
   .autocomplete-item .ac-sub { font-size: 0.65rem; color: rgba(255,121,198,0.45); letter-spacing: 1px; margin-top: 1px; }
   .autocomplete-loading { padding: 12px 16px; font-size: 0.7rem; color: rgba(255,121,198,0.4); letter-spacing: 2px; text-align: center; }
+
+  /* ─── VIEW TOGGLE ─────────────────────────────────────────────── */
+  .view-toggle {
+    display: flex;
+    gap: 6px;
+    margin: 12px 20px 0;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,121,198,0.15);
+    border-radius: 100px;
+    padding: 4px;
+    width: fit-content;
+  }
+  .toggle-btn {
+    background: transparent;
+    border: none;
+    color: rgba(255,214,236,0.45);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.68rem;
+    font-weight: 500;
+    letter-spacing: 1.5px;
+    padding: 7px 18px;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+  .toggle-btn.active {
+    background: linear-gradient(135deg, var(--hot-pink), var(--bubblegum));
+    color: white;
+    box-shadow: 0 3px 12px rgba(255,45,139,0.35);
+  }
+  .toggle-btn:not(.active):hover { color: var(--bubblegum); }
+
+  /* ─── MAP ──────────────────────────────────────────────────────── */
+  .results-wrapper { position: relative; }
+
+  .map-container { display: none; margin: 12px 16px 0; }
+  .map-container.visible { display: block; }
+  #map {
+    width: 100%;
+    height: 50vh;
+    border-radius: 20px;
+    border: 1px solid rgba(255,121,198,0.2);
+    overflow: hidden;
+  }
+
+  /* Leaflet popup styling */
+  .leaflet-popup-content-wrapper {
+    background: #1a0a2e !important;
+    border: 1px solid rgba(255,45,139,0.3) !important;
+    border-radius: 14px !important;
+    box-shadow: 0 8px 32px rgba(255,45,139,0.25) !important;
+    color: var(--white) !important;
+  }
+  .leaflet-popup-tip { background: #1a0a2e !important; }
+  .leaflet-popup-content {
+    font-family: 'DM Sans', sans-serif !important;
+    font-size: 0.75rem !important;
+    letter-spacing: 0.5px !important;
+    margin: 10px 14px !important;
+  }
+  .leaflet-popup-content .popup-name {
+    font-weight: 600;
+    font-size: 0.82rem;
+    color: var(--baby-pink);
+    margin-bottom: 4px;
+  }
+  .leaflet-popup-content .popup-dist {
+    font-size: 0.65rem;
+    color: rgba(255,121,198,0.5);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .leaflet-popup-content .popup-go {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--hot-pink), var(--bubblegum));
+    color: white;
+    font-size: 0.6rem;
+    font-weight: 500;
+    letter-spacing: 1.5px;
+    padding: 5px 12px;
+    border-radius: 100px;
+    text-decoration: none;
+    text-transform: uppercase;
+  }
+  .leaflet-popup-close-button { color: rgba(255,121,198,0.5) !important; }
+
+  /* Desktop: side-by-side */
+  @media (min-width: 768px) {
+    .results-wrapper {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      margin-top: 8px;
+      max-width: 100%;
+      overflow: hidden;
+    }
+    .map-container {
+      display: block !important;
+      margin: 0;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      padding: 12px 16px 12px 0;
+      min-width: 0;
+    }
+    #map {
+      height: 100%;
+    }
+    .view-toggle { display: none !important; }
+    #main-content { padding-bottom: 32px; min-width: 0; }
+  }
+
+  /* Highlighted card on map hover */
+  .toilet-card.map-highlight {
+    border-color: var(--mint) !important;
+    box-shadow: 0 0 20px rgba(0,245,196,0.25) !important;
+  }
 </style>
 </head>
 <body>
@@ -412,11 +533,21 @@
 
   <div id="data-badge-wrap"></div>
 
-  <div id="main-content">
+  <div id="view-toggle" class="view-toggle" style="display:none;">
+    <button class="toggle-btn active" id="toggle-list" onclick="switchView('list')">📋 List</button>
+    <button class="toggle-btn" id="toggle-map" onclick="switchView('map')">🗺️ Map</button>
+  </div>
+
+  <div id="results-wrapper" class="results-wrapper">
+    <div id="main-content">
     <div class="empty-state">
       <span class="empty-icon">🚽</span>
       <h2>Nature Calling?</h2>
       <p>tap the button above<br>we'll find your nearest<br>royal restroom, queen 👑</p>
+    </div>
+  </div>
+    <div id="map-container" class="map-container">
+      <div id="map"></div>
     </div>
   </div>
 
@@ -494,6 +625,9 @@ const NYC_TOILETS = [{"name":"Aqueduct Walk Zone 2","operator":"NYC Parks","type
 let allToilets = [];
 let userLat = null, userLng = null;
 let activeFilter = 'all';
+let map = null;
+let mapMarkers = [];
+let currentView = 'list';
 
 function haversine(a,b,c,d) {
   const R=3959, dL=(c-a)*Math.PI/180, dl=(d-b)*Math.PI/180;
@@ -572,6 +706,112 @@ async function fetchToilets(lat, lng) {
     .sort((a, b) => a._dist - b._dist);
 }
 
+// ─── MAP FUNCTIONS ───────────────────────────────────────────────
+function initMap(lat, lng) {
+  if (map) { map.setView([lat, lng], 14); return; }
+  map = L.map('map', { zoomControl: false }).setView([lat, lng], 14);
+  L.control.zoom({ position: 'bottomright' }).addTo(map);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>',
+    maxZoom: 19
+  }).addTo(map);
+
+  // User location marker
+  L.circleMarker([lat, lng], {
+    radius: 8, fillColor: '#00F5C4', fillOpacity: 0.9,
+    color: '#fff', weight: 2
+  }).addTo(map).bindPopup('<div style="font-family:DM Sans,sans-serif;font-size:0.75rem;color:#FFD6EC;">you are here 💅</div>');
+}
+
+function createNumberedIcon(num, isTop) {
+  const bg = isTop ? '#FF2D8B' : '#E8B4FF';
+  const border = isTop ? '#fff' : 'rgba(255,45,139,0.6)';
+  const size = isTop ? 36 : 28;
+  return L.divIcon({
+    className: 'custom-pin',
+    html: `<div style="
+      width:${size}px;height:${size}px;
+      background:${bg};
+      border:2px solid ${border};
+      border-radius:50%;
+      display:flex;align-items:center;justify-content:center;
+      font-family:'Abril Fatface',cursive;
+      font-size:${isTop ? '1rem' : '0.7rem'};
+      color:white;
+      box-shadow:0 3px 12px rgba(255,45,139,0.5);
+      ${isTop ? 'animation:dotpulse 2s ease-in-out infinite;' : ''}
+    ">${isTop ? '👑' : num}</div>`,
+    iconSize: [size, size],
+    iconAnchor: [size/2, size/2],
+    popupAnchor: [0, -size/2]
+  });
+}
+
+function updateMapPins(filtered) {
+  if (!map) return;
+  mapMarkers.forEach(m => map.removeLayer(m));
+  mapMarkers = [];
+
+  const bounds = [];
+  if (userLat && userLng) bounds.push([userLat, userLng]);
+
+  filtered.forEach((t, i) => {
+    const isTop = i === 0;
+    const gmaps = `https://www.google.com/maps/dir/?api=1&destination=${t._lat},${t._lng}&travelmode=walking`;
+    const marker = L.marker([t._lat, t._lng], { icon: createNumberedIcon(i + 1, isTop) })
+      .addTo(map)
+      .bindPopup(`
+        <div class="popup-name">${t.name}</div>
+        <div class="popup-dist">${fmtDist(t._dist)} · ${fmtWalk(t._dist)}</div>
+        <a href="${gmaps}" target="_blank" class="popup-go">Go 💗</a>
+      `);
+
+    marker.on('mouseover', () => highlightCard(i));
+    marker.on('mouseout', () => unhighlightCard(i));
+    marker.on('click', () => {
+      const card = document.querySelector(`.toilet-card[data-index="${i}"]`);
+      if (card) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+
+    mapMarkers.push(marker);
+    bounds.push([t._lat, t._lng]);
+  });
+
+  if (bounds.length > 1) {
+    map.fitBounds(bounds, { padding: [40, 40], maxZoom: 15 });
+  }
+}
+
+function highlightCard(i) {
+  const card = document.querySelector(`.toilet-card[data-index="${i}"]`);
+  if (card) card.classList.add('map-highlight');
+}
+function unhighlightCard(i) {
+  const card = document.querySelector(`.toilet-card[data-index="${i}"]`);
+  if (card) card.classList.remove('map-highlight');
+}
+
+function switchView(view) {
+  currentView = view;
+  const listBtn = document.getElementById('toggle-list');
+  const mapBtn = document.getElementById('toggle-map');
+  const mainContent = document.getElementById('main-content');
+  const mapContainer = document.getElementById('map-container');
+
+  if (view === 'map') {
+    listBtn.classList.remove('active');
+    mapBtn.classList.add('active');
+    mainContent.style.display = 'none';
+    mapContainer.classList.add('visible');
+    if (map) setTimeout(() => map.invalidateSize(), 100);
+  } else {
+    mapBtn.classList.remove('active');
+    listBtn.classList.add('active');
+    mainContent.style.display = '';
+    mapContainer.classList.remove('visible');
+  }
+}
+
 function renderResults() {
   const filtered = getFiltered(allToilets).slice(0, 20); // show top 20
 
@@ -606,7 +846,7 @@ function renderResults() {
     const gmaps = `https://www.google.com/maps/dir/?api=1&destination=${t._lat},${t._lng}&travelmode=walking`;
 
     html += `
-    <div class="toilet-card ${isTop ? 'top-pick' : ''}" style="animation-delay:${i*0.05}s" onclick="window.open('${gmaps}','_blank')">
+    <div class="toilet-card ${isTop ? 'top-pick' : ''}" data-index="${i}" style="animation-delay:${i*0.05}s" onclick="window.open('${gmaps}','_blank')" onmouseenter="highlightPin(${i})" onmouseleave="unhighlightPin(${i})">
       ${isTop ? '<div class="closest-badge">👑 Closest</div>' : ''}
       <div class="rank-bubble">${isTop ? '👑' : i+1}</div>
       <div class="card-body">
@@ -623,6 +863,14 @@ function renderResults() {
   });
   html += '</div>';
   document.getElementById('main-content').innerHTML = html;
+  updateMapPins(filtered);
+}
+
+function highlightPin(i) {
+  if (mapMarkers[i]) mapMarkers[i].openPopup();
+}
+function unhighlightPin(i) {
+  if (mapMarkers[i]) mapMarkers[i].closePopup();
 }
 
 async function findToilets() {
@@ -653,6 +901,8 @@ async function findToilets() {
   if (fallback) showError("location denied — showing results near Midtown 💕");
 
   allToilets = loadToilets(lat, lng);
+  initMap(lat, lng);
+  document.getElementById('view-toggle').style.display = '';
 
   document.getElementById('status-dot').classList.add('active');
   document.getElementById('status-text').textContent = `showing results near you 💕`;
@@ -856,6 +1106,8 @@ async function searchByAddress() {
       </div>`;
 
     allToilets = loadToilets(lat, lng);
+    initMap(lat, lng);
+    document.getElementById('view-toggle').style.display = '';
 
     document.getElementById('status-dot').classList.add('active');
     document.getElementById('status-text').textContent = `results near ${label} 💕`;
