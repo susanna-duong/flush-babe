@@ -490,6 +490,42 @@
     border-color: var(--mint) !important;
     box-shadow: 0 0 20px rgba(0,245,196,0.25) !important;
   }
+
+  /* Pagination */
+  .pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 16px 0;
+  }
+  .pagination button {
+    background: rgba(255,45,139,0.1);
+    border: 1px solid rgba(255,45,139,0.25);
+    color: var(--baby-pink);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 1px;
+    padding: 8px 18px;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .pagination button:hover:not(:disabled) {
+    background: rgba(255,45,139,0.25);
+    border-color: var(--hot-pink);
+  }
+  .pagination button:disabled {
+    opacity: 0.3;
+    cursor: default;
+  }
+  .pagination .page-info {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 1.5px;
+    color: rgba(255,121,198,0.5);
+    text-transform: uppercase;
+  }
 </style>
 </head>
 <body>
@@ -631,6 +667,9 @@ let mapMarkers = [];
 let currentView = 'list';
 let isMapDrivenUpdate = false;
 let moveDebounce = null;
+let currentPage = 0;
+let lastRenderedList = [];
+const PAGE_SIZE = 5;
 
 function haversine(a,b,c,d) {
   const R=3959, dL=(c-a)*Math.PI/180, dl=(d-b)*Math.PI/180;
@@ -839,8 +878,70 @@ function switchView(view) {
   }
 }
 
+function buildCardHTML(t, i) {
+  const isTop = i === 0;
+  const name = t.name;
+  const addr = t.operator || t.type || '';
+  const operator = t.type || '';
+
+  const openTag = t._openNow === true
+    ? `<span class="tag tag-open">open now</span>`
+    : t._openNow === false
+      ? `<span class="tag tag-closed">closed</span>`
+      : `<span class="tag tag-unknown">hours vary</span>`;
+
+  const adaTag   = t._isADA        ? `<span class="tag tag-ada">♿ accessible</span>` : '';
+  const changeTag= t._hasChanging  ? `<span class="tag tag-lilac">👶 changing</span>` : '';
+  const parkTag  = t._isPark       ? `<span class="tag tag-fab">🌿 park</span>` : '';
+  const opTag    = operator        ? `<span class="tag tag-unknown">${operator.slice(0,20)}</span>` : '';
+
+  const gmaps = `https://www.google.com/maps/dir/?api=1&destination=${t._lat},${t._lng}&travelmode=walking`;
+
+  return `
+  <div class="toilet-card ${isTop ? 'top-pick' : ''}" data-index="${i}" style="animation-delay:${(i % PAGE_SIZE)*0.05}s" onclick="window.open('${gmaps}','_blank')" onmouseenter="highlightPin(${i})" onmouseleave="unhighlightPin(${i})">
+    ${isTop ? '<div class="closest-badge">👑 Closest</div>' : ''}
+    <div class="rank-bubble">${isTop ? '👑' : i+1}</div>
+    <div class="card-body">
+      <div class="toilet-name">${name}</div>
+      <div class="toilet-addr">${addr}</div>
+      <div class="card-tags">${openTag}${adaTag}${changeTag}${parkTag}${opTag}</div>
+    </div>
+    <div class="card-right">
+      <div class="distance">${fmtDist(t._dist)}</div>
+      <div class="walk-time">${fmtWalk(t._dist)}</div>
+      <button class="go-btn" onclick="event.stopPropagation();window.open('${gmaps}','_blank')">Go 💗</button>
+    </div>
+  </div>`;
+}
+
+function renderPage() {
+  const totalPages = Math.ceil(lastRenderedList.length / PAGE_SIZE);
+  const start = currentPage * PAGE_SIZE;
+  const page = lastRenderedList.slice(start, start + PAGE_SIZE);
+
+  let html = '<div class="results">';
+  page.forEach((t, pi) => { html += buildCardHTML(t, start + pi); });
+  html += '</div>';
+
+  if (totalPages > 1) {
+    html += `<div class="pagination">
+      <button onclick="changePage(-1)" ${currentPage === 0 ? 'disabled' : ''}>← prev</button>
+      <span class="page-info">${currentPage + 1} / ${totalPages}</span>
+      <button onclick="changePage(1)" ${currentPage >= totalPages - 1 ? 'disabled' : ''}>next →</button>
+    </div>`;
+  }
+
+  document.getElementById('main-content').innerHTML = html;
+}
+
+function changePage(dir) {
+  const totalPages = Math.ceil(lastRenderedList.length / PAGE_SIZE);
+  currentPage = Math.max(0, Math.min(totalPages - 1, currentPage + dir));
+  renderPage();
+}
+
 function renderResults() {
-  const filtered = getFiltered(allToilets).slice(0, 20); // show top 20
+  const filtered = getFiltered(allToilets).slice(0, 20);
 
   if (!filtered.length) {
     document.getElementById('main-content').innerHTML = `
@@ -852,44 +953,9 @@ function renderResults() {
     return;
   }
 
-  let html = '<div class="results">';
-  filtered.forEach((t, i) => {
-    const isTop = i === 0;
-    const name = t.name;
-    const addr = t.operator || t.type || '';
-    const operator = t.type || '';
-
-    const openTag = t._openNow === true
-      ? `<span class="tag tag-open">open now</span>`
-      : t._openNow === false
-        ? `<span class="tag tag-closed">closed</span>`
-        : `<span class="tag tag-unknown">hours vary</span>`;
-
-    const adaTag   = t._isADA        ? `<span class="tag tag-ada">♿ accessible</span>` : '';
-    const changeTag= t._hasChanging  ? `<span class="tag tag-lilac">👶 changing</span>` : '';
-    const parkTag  = t._isPark       ? `<span class="tag tag-fab">🌿 park</span>` : '';
-    const opTag    = operator        ? `<span class="tag tag-unknown">${operator.slice(0,20)}</span>` : '';
-
-    const gmaps = `https://www.google.com/maps/dir/?api=1&destination=${t._lat},${t._lng}&travelmode=walking`;
-
-    html += `
-    <div class="toilet-card ${isTop ? 'top-pick' : ''}" data-index="${i}" style="animation-delay:${i*0.05}s" onclick="window.open('${gmaps}','_blank')" onmouseenter="highlightPin(${i})" onmouseleave="unhighlightPin(${i})">
-      ${isTop ? '<div class="closest-badge">👑 Closest</div>' : ''}
-      <div class="rank-bubble">${isTop ? '👑' : i+1}</div>
-      <div class="card-body">
-        <div class="toilet-name">${name}</div>
-        <div class="toilet-addr">${addr}</div>
-        <div class="card-tags">${openTag}${adaTag}${changeTag}${parkTag}${opTag}</div>
-      </div>
-      <div class="card-right">
-        <div class="distance">${fmtDist(t._dist)}</div>
-        <div class="walk-time">${fmtWalk(t._dist)}</div>
-        <button class="go-btn" onclick="event.stopPropagation();window.open('${gmaps}','_blank')">Go 💗</button>
-      </div>
-    </div>`;
-  });
-  html += '</div>';
-  document.getElementById('main-content').innerHTML = html;
+  lastRenderedList = filtered;
+  currentPage = 0;
+  renderPage();
   updateMapPins(filtered);
 }
 
@@ -919,44 +985,9 @@ function renderForBounds() {
     return;
   }
 
-  let html = '<div class="results">';
-  inView.forEach((t, i) => {
-    const isTop = i === 0;
-    const name = t.name;
-    const addr = t.operator || t.type || '';
-    const operator = t.type || '';
-
-    const openTag = t._openNow === true
-      ? `<span class="tag tag-open">open now</span>`
-      : t._openNow === false
-        ? `<span class="tag tag-closed">closed</span>`
-        : `<span class="tag tag-unknown">hours vary</span>`;
-
-    const adaTag   = t._isADA        ? `<span class="tag tag-ada">♿ accessible</span>` : '';
-    const changeTag= t._hasChanging  ? `<span class="tag tag-lilac">👶 changing</span>` : '';
-    const parkTag  = t._isPark       ? `<span class="tag tag-fab">🌿 park</span>` : '';
-    const opTag    = operator        ? `<span class="tag tag-unknown">${operator.slice(0,20)}</span>` : '';
-
-    const gmaps = `https://www.google.com/maps/dir/?api=1&destination=${t._lat},${t._lng}&travelmode=walking`;
-
-    html += `
-    <div class="toilet-card ${isTop ? 'top-pick' : ''}" data-index="${i}" style="animation-delay:${i*0.05}s" onclick="window.open('${gmaps}','_blank')" onmouseenter="highlightPin(${i})" onmouseleave="unhighlightPin(${i})">
-      ${isTop ? '<div class="closest-badge">👑 Closest</div>' : ''}
-      <div class="rank-bubble">${isTop ? '👑' : i+1}</div>
-      <div class="card-body">
-        <div class="toilet-name">${name}</div>
-        <div class="toilet-addr">${addr}</div>
-        <div class="card-tags">${openTag}${adaTag}${changeTag}${parkTag}${opTag}</div>
-      </div>
-      <div class="card-right">
-        <div class="distance">${fmtDist(t._dist)}</div>
-        <div class="walk-time">${fmtWalk(t._dist)}</div>
-        <button class="go-btn" onclick="event.stopPropagation();window.open('${gmaps}','_blank')">Go 💗</button>
-      </div>
-    </div>`;
-  });
-  html += '</div>';
-  document.getElementById('main-content').innerHTML = html;
+  lastRenderedList = inView;
+  currentPage = 0;
+  renderPage();
 
   isMapDrivenUpdate = true;
   updateMapPins(inView);
