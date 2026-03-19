@@ -626,8 +626,11 @@ let allToilets = [];
 let userLat = null, userLng = null;
 let activeFilter = 'all';
 let map = null;
+let pendingMapInit = null;
 let mapMarkers = [];
 let currentView = 'list';
+let isMapDrivenUpdate = false;
+let moveDebounce = null;
 
 function haversine(a,b,c,d) {
   const R=3959, dL=(c-a)*Math.PI/180, dl=(d-b)*Math.PI/180;
@@ -709,6 +712,13 @@ async function fetchToilets(lat, lng) {
 // ─── MAP FUNCTIONS ───────────────────────────────────────────────
 function initMap(lat, lng) {
   if (map) { map.setView([lat, lng], 14); return; }
+  const mapEl = document.getElementById('map');
+  const isHidden = window.getComputedStyle(mapEl.parentElement).display === 'none';
+  // If the map container is hidden (mobile), defer init until it becomes visible
+  if (isHidden) {
+    pendingMapInit = { lat, lng };
+    return;
+  }
   map = L.map('map', { zoomControl: false }).setView([lat, lng], 14);
   L.control.zoom({ position: 'bottomright' }).addTo(map);
   L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
@@ -721,6 +731,16 @@ function initMap(lat, lng) {
     radius: 8, fillColor: '#00F5C4', fillOpacity: 0.9,
     color: '#fff', weight: 2
   }).addTo(map).bindPopup('<div style="font-family:DM Sans,sans-serif;font-size:0.75rem;color:#FFD6EC;">you are here 💅</div>');
+  pendingMapInit = null;
+
+  // Auto-update results when user pans/zooms the map
+  map.on('moveend', () => {
+    if (isMapDrivenUpdate) return; // skip if we triggered this move programmatically
+    clearTimeout(moveDebounce);
+    moveDebounce = setTimeout(() => {
+      if (allToilets.length) renderForBounds();
+    }, 300);
+  });
 }
 
 function createNumberedIcon(num, isTop) {
@@ -777,7 +797,7 @@ function updateMapPins(filtered) {
     bounds.push([t._lat, t._lng]);
   });
 
-  if (bounds.length > 1) {
+  if (bounds.length > 1 && !isMapDrivenUpdate) {
     map.fitBounds(bounds, { padding: [40, 40], maxZoom: 15 });
   }
 }
@@ -803,7 +823,14 @@ function switchView(view) {
     mapBtn.classList.add('active');
     mainContent.style.display = 'none';
     mapContainer.classList.add('visible');
-    if (map) setTimeout(() => map.invalidateSize(), 100);
+    if (pendingMapInit) {
+      setTimeout(() => {
+        initMap(pendingMapInit.lat, pendingMapInit.lng);
+        if (allToilets.length) renderResults();
+      }, 50);
+    } else if (map) {
+      setTimeout(() => map.invalidateSize(), 150);
+    }
   } else {
     mapBtn.classList.remove('active');
     listBtn.classList.add('active');
@@ -864,6 +891,76 @@ function renderResults() {
   html += '</div>';
   document.getElementById('main-content').innerHTML = html;
   updateMapPins(filtered);
+}
+
+function renderForBounds() {
+  if (!map) return;
+  const bounds = map.getBounds();
+  const center = map.getCenter();
+
+  // Filter to toilets visible on map, apply active filter, sort by distance from map center
+  const inView = getFiltered(allToilets)
+    .filter(t => bounds.contains([t._lat, t._lng]))
+    .map(t => ({ ...t, _distFromCenter: haversine(center.lat, center.lng, t._lat, t._lng) }))
+    .sort((a, b) => a._distFromCenter - b._distFromCenter)
+    .slice(0, 20);
+
+  // Re-render list
+  if (!inView.length) {
+    document.getElementById('main-content').innerHTML = `
+      <div class="empty-state">
+        <span class="empty-icon">🗺️</span>
+        <h2>No Restrooms Here</h2>
+        <p>pan back or zoom out babe 💕</p>
+      </div>`;
+    isMapDrivenUpdate = true;
+    updateMapPins([]);
+    isMapDrivenUpdate = false;
+    return;
+  }
+
+  let html = '<div class="results">';
+  inView.forEach((t, i) => {
+    const isTop = i === 0;
+    const name = t.name;
+    const addr = t.operator || t.type || '';
+    const operator = t.type || '';
+
+    const openTag = t._openNow === true
+      ? `<span class="tag tag-open">open now</span>`
+      : t._openNow === false
+        ? `<span class="tag tag-closed">closed</span>`
+        : `<span class="tag tag-unknown">hours vary</span>`;
+
+    const adaTag   = t._isADA        ? `<span class="tag tag-ada">♿ accessible</span>` : '';
+    const changeTag= t._hasChanging  ? `<span class="tag tag-lilac">👶 changing</span>` : '';
+    const parkTag  = t._isPark       ? `<span class="tag tag-fab">🌿 park</span>` : '';
+    const opTag    = operator        ? `<span class="tag tag-unknown">${operator.slice(0,20)}</span>` : '';
+
+    const gmaps = `https://www.google.com/maps/dir/?api=1&destination=${t._lat},${t._lng}&travelmode=walking`;
+
+    html += `
+    <div class="toilet-card ${isTop ? 'top-pick' : ''}" data-index="${i}" style="animation-delay:${i*0.05}s" onclick="window.open('${gmaps}','_blank')" onmouseenter="highlightPin(${i})" onmouseleave="unhighlightPin(${i})">
+      ${isTop ? '<div class="closest-badge">👑 Closest</div>' : ''}
+      <div class="rank-bubble">${isTop ? '👑' : i+1}</div>
+      <div class="card-body">
+        <div class="toilet-name">${name}</div>
+        <div class="toilet-addr">${addr}</div>
+        <div class="card-tags">${openTag}${adaTag}${changeTag}${parkTag}${opTag}</div>
+      </div>
+      <div class="card-right">
+        <div class="distance">${fmtDist(t._dist)}</div>
+        <div class="walk-time">${fmtWalk(t._dist)}</div>
+        <button class="go-btn" onclick="event.stopPropagation();window.open('${gmaps}','_blank')">Go 💗</button>
+      </div>
+    </div>`;
+  });
+  html += '</div>';
+  document.getElementById('main-content').innerHTML = html;
+
+  isMapDrivenUpdate = true;
+  updateMapPins(inView);
+  isMapDrivenUpdate = false;
 }
 
 function highlightPin(i) {
@@ -1294,6 +1391,9 @@ function showError(msg) {
   b.style.display = 'block';
   setTimeout(() => b.style.display = 'none', 6000);
 }
+
+// Auto-load results on page load
+findToilets();
 </script>
 </body>
 </html>
